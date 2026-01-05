@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBAS Global - Irfan Ali LinkedIn Content Calendar Dashboard</title>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rbas: {
+                            orange: '#FF7A00',
+                            red: '#DC2626',
+                            grey: '#6B7280',
+                            darkBlue: '#1F4E79',
+                            lightGrey: '#E5E7EB',
+                            bg: '#F3F4F6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; margin: 0; padding: 0; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #FF7A00; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #fb6d1c; }
+        .badge { display: inline-block; padding: 0.375rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; }
+        .badge-awareness { background-color: #DBEAFE; color: #1E40AF; }
+        .badge-consideration { background-color: #E9D5FF; color: #6B21A8; }
+        .badge-relationship { background-color: #DCFCE7; color: #15803D; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .hover-scale { transition: transform 0.2s, box-shadow 0.2s; }
+        .hover-scale:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .code-display { background-color: #1f2937; color: #f3f4f6; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 0.75rem; line-height: 1.4; max-height: 300px; overflow-y: auto; }
+        .copy-prompt-btn { background-color: #FF7A00; color: white; padding: 0.5rem 0.75rem; border: none; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+        .copy-prompt-btn:hover { background-color: #fb6d1c; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const App = () => {
+            const [selectedPost, setSelectedPost] = React.useState(null);
+            const [searchQuery, setSearchQuery] = React.useState('');
+            const [filterObjective, setFilterObjective] = React.useState('');
+            const [activeView, setActiveView] = React.useState('list');
+
+            const posts = [
+
+                {id: 1, date: "2025-12-01", day: "Monday", time: "10:00", objective: "awareness", title: "Why India Is the Smart Choice for Equipment Exports", caption: "Why smart buyers source construction equipment from India. Here's what 10+ years of exports have taught me.", hashtags: "#EquipmentExports #ConstructionEquipment #MadeInIndia #GlobalTrade #HeavyMachinery", cta: "DM me to discuss your equipment sourcing requirements", link: "https://www.rbasglobal.com/contact", imageId: "irfan-rbas-india-export-01", imageName: "India Equipment Export Gateway", imagePrompt: "Hyper-realistic exterior photography of a busy Indian commercial shipping port at dawn. Heavy construction equipment (Tata Hitachi excavators, CAT loaders) staged on textured concrete dock. Towering stacks of rusted and colorful ISO shipping containers create canyon-like alley. Three workers wearing hard hats and high-visibility reflective vests silhouetted against rising golden sun, inspecting hydraulic equipment. Air thick with morning sea mist and industrial dust particles. Shot on 70mm lens at f/2.8, ISO 100. Shallow depth of field with focus on equipment hydraulics, bokeh background of distant gantry cranes and container ships. Cinematic lighting with volumetric sun rays piercing through mist. 8K resolution, ultra-detailed, commercial photography grade.", negativePrompt: "no visible logos, no readable text on containers, no faces visible, no unrealistic proportions, avoid cartoon style, no floating objects, no excessive grime, no color distortion, no blurry focus on main equipment", camera: "70mm f/2.8 ISO 100"},
+                {id: 2, date: "2025-12-02", day: "Tuesday", time: "09:30", objective: "consideration", title: "Product Spotlight: Backhoe Loaders for African Markets", caption: "Why backhoe loaders dominate African construction sites—and how to source them right.", hashtags: "#BackhoeLoader #AfricaConstruction #HeavyEquipment #EquipmentSourcing #ConstructionMachinery", cta: "Enquire via RBAS Global website for specifications", link: "https://www.rbasglobal.com/products/backhoe-loaders", imageId: "irfan-rbas-backhoe-africa-02", imageName: "Backhoe Loader on African Site", imagePrompt: "Hyper-realistic exterior photography of a backhoe loader actively working on an African construction site. Equipment painted in industrial-orange and neutral grey, positioned mid-excavation with raised bucket. Silhouetted operator visible through tinted cab glass wearing hard hat. Red-brown laterite soil being moved, excavation pit with scattered construction materials and wooden forms visible. Distant acacia trees and savanna landscape heavily blurred with strong bokeh. Bright midday African sun creating defined shadows on the machine. Shot on 70mm lens at f/2.8, ISO 100. Rich earth tones, warm daylight, professional construction documentation style. 8K resolution, ultra-detailed, authentic construction site atmosphere.", negativePrompt: "no brand logos, no visible operator face, no readable text on equipment, avoid harsh shadows, no floating soil, no unrealistic colors, no excessive weathering, clean equipment surfaces, no animals, no people in background", camera: "70mm f/2.8 ISO 100"},
+                {id: 3, date: "2025-12-04", day: "Thursday", time: "09:30", objective: "relationship-building", title: "Quality Assurance: Our Pre-Shipment Inspection Process", caption: "Trust in exports starts before the container is sealed. Here's our pre-shipment QA process.", hashtags: "#QualityAssurance #PreShipmentInspection #EquipmentExports #ExportQuality #GlobalTrade", cta: "DM me for a sample pre-shipment inspection checklist", link: "", imageId: "irfan-rbas-qa-inspection-03", imageName: "Pre-Shipment Equipment Inspection", imagePrompt: "Hyper-realistic interior photography of a quality assurance inspection in an Indian equipment yard. Senior inspector in hard hat and safety vest with reflective stripes, silhouetted against workshop lighting, examining excavator hydraulic arm and connections with professional flashlight and measurement tool. Steel clipboard with inspection checklist visible but text unreadable. Large industrial excavator in razor-sharp foreground detail. Warehouse with stacked spare parts, welding stations, and industrial infrastructure strongly blurred in background. Overcast diffused daylight through large warehouse windows creating soft even lighting without harsh shadows. Shot on 85mm macro lens at f/2.8, ISO 100. Professional documentary photography, meticulous detail, 8K resolution, ultra-detailed.", negativePrompt: "no visible faces or identifying features, no readable inspection documents, no brand logos on equipment, no unrealistic closeups, avoid cluttered background, no excessive reflections, clean inspection surfaces, no floating objects, professional setting maintained", camera: "85mm f/2.8 ISO 100"},
+                {id: 4, date: "2025-12-05", day: "Friday", time: "14:00", objective: "awareness", title: "Thought Leadership: Total Cost of Ownership for Emerging Market Buyers", caption: "The purchase price is just the beginning. Here's why TCO matters for equipment buyers.", hashtags: "#TotalCostOfOwnership #TCO #EquipmentBuying #FleetManagement #EmergingMarkets", cta: "DM me to discuss TCO analysis for your fleet", link: "", imageId: "irfan-rbas-tco-concept-04", imageName: "TCO Equipment Analysis Concept", imagePrompt: "Hyper-realistic aerial exterior photography of a sprawling construction equipment yard in rural India at late afternoon golden hour. Multiple machines in neat rows: CAT excavators, Komatsu loaders, Dynapac rollers arranged for maximum visual impact. Industrial-orange and grey color palette dominant. Senior manager figure in PPE walking between equipment rows reviewing inventory with tablet device, silhouetted against setting sun. Long shadows cast across concrete yard surface. Modern warehouse and maintenance facilities in mid-distance slightly blurred. Rich golden hour lighting creating dramatic depth and dimension. Shot on 50mm lens at f/2.8, ISO 100. Landscape photography composition, professional fleet documentation, 8K resolution, ultra-detailed, cinematic quality.", negativePrompt: "no visible faces, no readable text on signs, no logos on buildings, avoid harsh shadows, no floating equipment, no unrealistic perspectives, clean yard surfaces, no excessive dust, no color grading artifacts, professional condition maintained", camera: "50mm f/2.8 ISO 100"},
+                {id: 5, date: "2025-12-08", day: "Monday", time: "10:00", objective: "awareness", title: "Export Education: Understanding Incoterms for Equipment Buyers", caption: "FOB, CIF, DAP—confused? Here's a simple guide to Incoterms for equipment buyers.", hashtags: "#Incoterms #InternationalTrade #ExportEducation #EquipmentBuying #GlobalLogistics", cta: "Comment with your questions or DM me", link: "", imageId: "irfan-rbas-incoterms-05", imageName: "Incoterms Shipping Concept", imagePrompt: "Hyper-realistic exterior photography of an Indian commercial port with shipping operations in progress. Large container gantry crane mid-operation loading excavator into open shipping container. Equipment suspended from crane straps creating tension in frame. Industrial port infrastructure with stacked containers creating geometric backdrop. Port workers in high-visibility gear directing the loading operation, silhouetted for safety. Multiple shipping vessels docked in mid-distance, partially obscured by industrial haze and container stacks. Container ship surfaces showing weathering and maritime patina. Shot on 70mm lens at f/2.8, ISO 100. Golden hour lighting illuminating both foreground and shipping vessels. Professional maritime documentation, 8K resolution, ultra-detailed, industrial photography.", negativePrompt: "no brand logos visible, no readable text on containers, no faces visible on workers, no unrealistic cable arrangements, avoid excessive wear, no floating objects, clean equipment surfaces, no color distortion, maintain professional documentation standards", camera: "70mm f/2.8 ISO 100"},
+                {id: 6, date: "2025-12-09", day: "Tuesday", time: "09:30", objective: "relationship-building", title: "Behind-the-Scenes: A Day in Export Operations", caption: "What does an Export Manager do all week? Here's a behind-the-scenes look at RBAS Global operations.", hashtags: "#ExportManager #BehindTheScenes #GlobalTrade #DayInTheLife #B2BOperations", cta: "Connect with me to stay updated on export insights", link: "", imageId: "irfan-rbas-bts-office-06", imageName: "Export Operations Behind-the-Scenes", imagePrompt: "Hyper-realistic interior photography of a professional export management office workspace in Bangalore. Wooden desk with ergonomic setup: laptop displaying equipment database dashboard, printed shipping manifests and bills of lading arranged neatly, satellite photographs of equipment installations on corkboard. Industrial-orange desk accessories including executive pen set and desk organizer. Photographs of exported equipment displayed in professional frames. Floor-to-ceiling windows with soft natural daylight illuminating workspace, indoor plants adding green accents. Modern office furniture in neutral greys and whites. Focus sharp on desk arrangement, background office blurred showing collaborative workspace. Shot on 35mm lens at f/2.8, ISO 200. Professional office photography, warm natural lighting, 8K resolution, ultra-detailed, contemporary business environment.", negativePrompt: "no visible faces or identifying people, no readable text on documents, no brand logos on equipment, avoid cluttered appearance, no excessive shadows, clean modern aesthetic, no fluorescent glare, professional setting maintained, no distractions", camera: "35mm f/2.8 ISO 200"},
+                {id: 7, date: "2025-12-11", day: "Thursday", time: "09:30", objective: "consideration", title: "Product Spotlight: Excavators for Emerging Markets", caption: "Excavators for emerging markets—what matters most beyond the spec sheet.", hashtags: "#Excavators #ConstructionEquipment #EmergingMarkets #MiningEquipment #HeavyMachinery", cta: "DM me with your excavator requirements", link: "https://www.rbasglobal.com/products/excavators", imageId: "irfan-rbas-excavator-emerging-07", imageName: "Excavator in Emerging Market Site", imagePrompt: "Hyper-realistic exterior photography of a mid-size Komatsu PC220 excavator actively working on an emerging market construction site. Machine painted in industrial-orange with grey cab, bucket raised high with soil mid-motion. Silhouetted operator visible through tinted cab glass wearing PPE hard hat. Dusty earth environment with red-brown soil coloration, scattered construction materials, wooden form work visible. Tropical vegetation including palm trees and dense foliage blurred in background creating frame depth. Bright midday sun with defined equipment shadows on ground. Harsh daylight conditions typical of tropical construction sites. Shot on 70mm lens at f/2.8, ISO 100. Construction documentation style, authentic site conditions, warm color palette. 8K resolution, ultra-detailed.", negativePrompt: "no brand logos visible, no operator face visible, no readable text, avoid excessive dirt, clean hydraulic systems visible, no unrealistic bucket positions, natural dust conditions, no floating soil, maintain equipment dignity, professional documentation", camera: "70mm f/2.8 ISO 100"},
+                {id: 8, date: "2025-12-12", day: "Friday", time: "14:00", objective: "awareness", title: "Buyer FAQ: Payment Security and Letter of Credit Basics", caption: "New to international payments? Here's how a Letter of Credit protects your equipment purchase.", hashtags: "#LetterOfCredit #LC #InternationalTrade #PaymentSecurity #ExportFinance", cta: "DM me for a step-by-step LC guide", link: "", imageId: "irfan-rbas-lc-finance-08", imageName: "Letter of Credit Trade Finance Concept", imagePrompt: "Hyper-realistic close-up photography of international trade finance documents on dark wood executive desk. Stack of official documents: Bank Letter of Credit form with embossed seals and official stamps, Uniform Customs and Practice (UCP) guidelines, commercial invoices with customs markings, Bills of Lading with shipping routes highlighted. Industrial-orange executive folder with legal documents organized professionally. Metal seal press visible with embossed impressions. Mont Blanc fountain pen resting on invoice. Soft overhead lighting creating subtle shadows emphasizing document importance and authority. Small framed photograph of exported equipment visible in corner. Shot on 50mm macro lens at f/2.8, ISO 100. Professional financial documentation photography, subtle color grading, 8K resolution, ultra-detailed, trustworthiness emphasized.", negativePrompt: "no readable sensitive information, no actual account numbers, no faces visible, no floating documents, no unrealistic seal impressions, clean document surfaces, no excessive wear, professional preservation, no distracting reflections, formal business aesthetic", camera: "50mm f/2.8 ISO 100"},
+                {id: 9, date: "2025-12-15", day: "Monday", time: "10:00", objective: "awareness", title: "Logistics Know-How: Optimising Shipping Routes", caption: "Shipping route optimisation can cut landed costs by 10-15%. Here's how smart buyers plan logistics.", hashtags: "#ShippingLogistics #FreightOptimisation #GlobalTrade #SupplyChain #EquipmentExports", cta: "Share your destination port—I'll suggest optimal routing", link: "", imageId: "irfan-rbas-shipping-route-09", imageName: "Shipping Route Optimisation", imagePrompt: "Hyper-realistic aerial maritime photography of large container ship laden with construction equipment sailing through open blue ocean at daytime. Industrial-orange Tata and CAT equipment visible on deck under secure lashing arrangements. Neutral grey ship hull with weathered maritime surfaces. Foam wake pattern trailing from ship hull on deep blue ocean water. Clear sky with soft cumulus clouds providing scale reference. Distant tanker and container ship silhouettes on horizon. Professional maritime photography composition emphasizing global logistics and international trade scale. Shot on 100mm telephoto lens at f/4, ISO 100. Ocean color saturation enhanced, professional maritime documentation. 8K resolution, ultra-detailed, global shipping industry authenticity.", negativePrompt: "no brand logos on equipment, no readable text on hull, avoid excessive rust, no floating objects, clean maritime conditions, realistic ocean depth, no unrealistic sky distortion, professional shipping standards, no cargo imbalance appearance, maintain vessel integrity", camera: "100mm f/4 ISO 100"},
+                {id: 10, date: "2025-12-16", day: "Tuesday", time: "09:30", objective: "consideration", title: "Mini Case Study: Helping a Contractor Scale Fleet in East Africa", caption: "How we helped an East African contractor scale their fleet in 7 weeks—from sourcing to delivery.", hashtags: "#CaseStudy #FleetExpansion #EastAfrica #RoadConstruction #EquipmentSourcing", cta: "DM me to discuss your fleet expansion", link: "https://www.rbasglobal.com/contact", imageId: "irfan-rbas-casestudy-ea-10", imageName: "East Africa Road Construction Fleet", imagePrompt: "Hyper-realistic exterior photography of active road construction project in East African region. Fleet of equipment working in coordinated sequence: Motor grader in foreground with blade lowered leveling red-brown earth road surface, vibratory roller compactor closely following for soil compaction, excavator in background positioned for next phase excavation. Multiple operators visible as silhouettes in cabs wearing PPE hard hats. Red laterite earth dominant in frame, loose soil, construction markers and traffic cones. Dense green savanna vegetation and acacia trees creating forest edge backdrop strongly blurred. Late afternoon golden light casting long shadows of equipment across road surface creating dramatic depth. Shot on 50mm lens at f/2.8, ISO 100. Construction project documentation, authentic East African landscape, warm earth tones. 8K resolution, ultra-detailed, professional infrastructure photography.", negativePrompt: "no brand logos visible, no operator faces, no readable text on equipment, avoid excessive dust clouds, clean road surface visible, no unrealistic equipment angles, natural vegetation preserved, no floating debris, maintain project professional appearance, authentic site conditions", camera: "50mm f/2.8 ISO 100"},
+                {id: 11, date: "2025-12-18", day: "Thursday", time: "09:30", objective: "consideration", title: "Product Spotlight: Motor Graders and Compactors for Infrastructure Projects", caption: "Motor graders and compactors—the backbone of any road construction project. Here's what to look for.", hashtags: "#MotorGrader #Compactors #RoadConstruction #InfrastructureProjects #ConstructionEquipment", cta: "DM me with your equipment list for sourcing options", link: "https://www.rbasglobal.com/products", imageId: "irfan-rbas-grader-compactor-11", imageName: "Motor Grader and Compactor Tandem", imagePrompt: "Hyper-realistic exterior photography of motor grader and vibratory compactor working in tandem on active road construction. Motor grader with hydraulic blade lowered and angled precisely leveling freshly excavated earth surface creating uniform texture. CAT vibratory roller directly behind in compaction sequence with heavy drum actively vibrating soil creating compression patterns. Silhouetted operators in both cabs visible through tinted glass wearing protective equipment. Red-brown construction road surface in sharp foreground detail showing blade marks and compaction patterns. Construction zone with marker cones and warning reflectors visible but bokeh blurred. Overcast daylight providing soft even illumination without harsh shadows. Shot on 70mm lens at f/2.8, ISO 100. Professional road infrastructure documentation, technical precision evident, 8K resolution, ultra-detailed.", negativePrompt: "no brand logos visible on equipment, no operator face details, no readable text, avoid excessive dust, clean equipment surfaces, no unrealistic blade angles, natural soil conditions, no floating debris, maintain professional documentation standards, infrastructure authenticity", camera: "70mm f/2.8 ISO 100"},
+                {id: 12, date: "2025-12-19", day: "Friday", time: "14:00", objective: "awareness", title: "Export Education: Documentation Checklist for Equipment Importers", caption: "Smooth customs clearance starts with complete documentation. Here's your essential checklist.", hashtags: "#ExportDocumentation #CustomsClearance #ImporterGuide #TradeCompliance #InternationalTrade", cta: "DM me for a downloadable documentation checklist", link: "", imageId: "irfan-rbas-docs-checklist-12", imageName: "Export Documentation Checklist", imagePrompt: "Hyper-realistic close-up photography of export compliance documentation organized on clean white desk in customs clearance office. Stack of official export papers: Certificate of Origin with government seals and official stamps, Packing List with detailed itemization, Commercial Invoice with value declarations, Certificate of Conformity with testing data, Import License documentation with destination country markings. Industrial-orange manila folder with organized tabs and labels. Metal classification stamp with official markings. Professional pen set and desk organizer. Soft natural daylight from office windows illuminating documents creating subtle depth. Small photograph of exported equipment visible as reference. Shot on 50mm macro lens at f/2.8, ISO 100. Compliance documentation photography, official aesthetic, 8K resolution, ultra-detailed, administrative precision.", negativePrompt: "no readable sensitive data, no actual invoice numbers, no faces visible, no floating papers, no unrealistic stamp impressions, clean document preservation, no excessive markings, professional filing standards, no distracting reflections, bureaucratic authenticity", camera: "50mm f/2.8 ISO 100"},
+                {id: 13, date: "2025-12-22", day: "Monday", time: "10:00", objective: "awareness", title: "Thought Leadership: Equipment Export Trends to Watch in 2025", caption: "Equipment export trends to watch in 2025—from Africa demand to electrification interest. What are you seeing?", hashtags: "#ExportTrends2025 #ConstructionEquipment #GlobalTrade #IndustryInsights #AfricaInfrastructure", cta: "Share your market observations in the comments", link: "", imageId: "irfan-rbas-trends-2025-13", imageName: "2025 Equipment Export Trends Concept", imagePrompt: "Hyper-realistic exterior photography of modern construction equipment fleet at Indian equipment yard during dawn golden hour. Diverse fleet includes CAT excavators, Komatsu wheel loaders, Dynapac compactors, and motor graders arranged in organized rows creating geometric composition. Industrial-orange and grey color palette dominant throughout. Two silhouetted business executives in formal business casual with hard hats walking between equipment rows reviewing fleet discussing export opportunities, facing rising golden sun. Modern warehouse facility with loading dock visible in background. Rising sun on horizon casting golden rays across equipment creating dramatic rim lighting. Shot on 35mm lens at f/2.8, ISO 100. Sunrise photography, business leadership imagery, professional asset management, 8K resolution, ultra-detailed, aspirational export industry vision.", negativePrompt: "no brand logos visible, no face details on executives, no readable signage, avoid excessive glare, clean equipment presentation, no floating objects, organized yard aesthetic, no harsh shadows, professional business appearance, authentic equipment authenticity", camera: "35mm f/2.8 ISO 100"},
+                {id: 14, date: "2025-12-23", day: "Tuesday", time: "09:30", objective: "relationship-building", title: "Compliance and Certification: What Global Buyers Should Know", caption: "Compliance is the foundation of trusted equipment exports. Here's what buyers should verify.", hashtags: "#TradeCompliance #Certification #QualityStandards #ExportRegulations #CEMarking", cta: "DM me for destination-specific compliance guidance", link: "", imageId: "irfan-rbas-compliance-cert-14", imageName: "Compliance Certification Concept", imagePrompt: "Hyper-realistic close-up photography of quality certification documents and official seals on professional desk in compliance office. Stack of certification papers: ISO 9001:2015 Quality Management Certificate with embossed official seal, CE Marking Declaration of Conformity, Equipment Certification paperwork with testing data and lab reports, Metal quality assurance plaque with official engraving. Industrial-orange folder containing international standards documentation. Professional rubber classification stamp creating official impressions on documents. Metal seal press device with embossed patterns visible. Soft overhead office lighting emphasizing official seals and stamped impressions. Small equipment photograph visible in frame corner as reference for certification. Shot on 50mm macro lens at f/2.8, ISO 100. Certification documentation, professional compliance aesthetic, 8K resolution, ultra-detailed, trustworthiness and reliability emphasized.", negativePrompt: "no readable certification numbers, no sensitive data visible, no faces in frame, no floating documents, no unrealistic embossed details, clean professional presentation, no excessive wear marks, official preservation, no distracting reflections, compliance authenticity maintained", camera: "50mm f/2.8 ISO 100"},
+                {id: 15, date: "2025-12-25", day: "Thursday", time: "09:30", objective: "consideration", title: "Product Spotlight: Agricultural Equipment Exports for Global Markets", caption: "Agricultural equipment exports for global markets—tractors implements and harvesting machines. Here's what we offer.", hashtags: "#AgriculturalEquipment #TractorExports #FarmMachinery #AgriTech #GlobalAgriculture", cta: "DM me with your agricultural equipment requirements", link: "https://www.rbasglobal.com/products/agricultural-equipment", imageId: "irfan-rbas-agri-tractor-15", imageName: "Agricultural Tractor in Field", imagePrompt: "Hyper-realistic exterior photography of agricultural tractor with mounted plow equipment actively working in fertile rural field. Medium-horsepower Massey Ferguson or Swaraj tractor painted in industrial-orange with grey attachment, moving through freshly plowed brown soil creating dramatic ground disturbance. Silhouetted operator visible through tinted cab glass wearing simple farmer workwear and hard hat but face not visible. Freshly turned rich brown earth in foreground showing plow blade marks and soil texture. Green crop field in mid-distance with lush vegetation growth. Rural landscape with scattered trees and distant hills creating depth and context. Late afternoon golden hour lighting casting long equipment shadows across field surface. Shot on 70mm lens at f/2.8, ISO 100. Agricultural documentation, warm rustic aesthetic, rural authenticity, 8K resolution, ultra-detailed, farming heritage preservation.", negativePrompt: "no visible operator face, no brand logos emphasized, no readable text on equipment, avoid excessive soil spray, clean tractor surfaces, no unrealistic plow angles, natural field conditions, no floating debris, maintain equipment dignity, authentic agricultural setting", camera: "70mm f/2.8 ISO 100"},
+                {id: 16, date: "2025-12-26", day: "Friday", time: "14:00", objective: "relationship-building", title: "Year-End Reflection: Building Lasting Partnerships in Equipment Exports", caption: "Year-end reflection: Equipment exports are about building trust not just shipping machines. Here's to lasting partnerships.", hashtags: "#YearEndReflection #B2BPartnerships #TrustBuilding #EquipmentExports #RelationshipFirst", cta: "Let us connect—here's to building something lasting in 2025", link: "https://www.rbasglobal.com/contact", imageId: "irfan-rbas-yearend-partner-16", imageName: "Year-End Partnership Reflection", imagePrompt: "Hyper-realistic exterior photography of equipment yard at dusk transitioning into twilight. Construction equipment fleet: excavators, loaders, graders parked in organized rows creating leading lines composition. Industrial-orange and grey equipment colors richly saturated in fading daylight. Two silhouetted business figures standing together appearing in earnest conversation facing dramatic sunset, wearing business casual and hard hats without visible faces. Colorful sunset sky transitioning from orange to purple with golden rays illuminating equipment creating rim lighting effect. Equipment details sharp in foreground, distant warehouse and yard infrastructure blurred in background. Warm reflective mood emphasizing partnership and business relationship. Shot on 50mm lens at f/2.8, ISO 100. Sunset photography, partnership symbolism, aspirational business imagery, 8K resolution, ultra-detailed, relationship-building authenticity.", negativePrompt: "no brand logos visible, no face details on figures, no readable signage, avoid excessive glare from sunset, clean equipment presentation, no floating objects, organized yard aesthetic, no harsh shadows, professional business appearance, equipment authenticity maintained", camera: "50mm f/2.8 ISO 100"}
+            ,
+                {id: 17, date: "2026-01-01", day: "Thursday", time: "09:30", objective: "awareness", title: "Global Trade Policy Updates: How Tariff Changes Affect Your Equipment Costs", caption: "2026 brings new trade agreements affecting equipment exports. Here's what export managers need to know about tariff impacts.", hashtags: "#TradePolicies #ExportCompliance #EquipmentTariffs #GlobalTrade #B2BExport", cta: "Comment with your tariff concerns", link: "", imageId: "irfan-rbas-trade-policy-17", imageName: "Global Trade Policy Impact", imagePrompt: "Professional infographic showing trade policy documents and global map with tariff schedules. Modern office with laptop displaying international trade data. Orange and blue RBAS brand colors. 8K resolution.", negativePrompt: "no brand logos visible, no readable tariff numbers, clean professional layout", camera: "35mm f/2.8 ISO 100"},
+                {id: 18, date: "2026-01-02", day: "Friday", time: "09:30", objective: "consideration", title: "Product Spotlight: Wheel Loaders for Large-Scale Infrastructure Development", caption: "Wheel loaders are workhorses on infrastructure sites. What specs matter for different project scales? Let's break it down.", hashtags: "#WheelLoaders #ConstructionEquipment #Infrastructure #HeavyMachinery #EquipmentSpec", cta: "DM me with your wheel loader requirements", link: "https://www.rbasglobal.com/products/wheel-loaders", imageId: "irfan-rbas-wheel-loader-18", imageName: "Wheel Loader on Infrastructure Site", imagePrompt: "Hyper-realistic CAT wheel loader on highway construction site with raised bucket. Red-brown road material, construction crew silhouetted. Bright daylight with equipment shadows. 8K resolution.", negativePrompt: "no brand logos, no operator faces, clean equipment presentation", camera: "70mm f/2.8 ISO 100"},
+                {id: 19, date: "2026-01-06", day: "Monday", time: "10:00", objective: "relationship-building", title: "Building Lasting Export Partnerships: What Sets RBAS Global Apart", caption: "10+ years of exports isn't just about equipment—it's about relationships. Here's how we build partnerships that survive market volatility.", hashtags: "#ExportPartnership #B2BRelationships #LongTermValue #TrustInTrade #GlobalNetwork", cta: "Connect with me to discuss partnership opportunities", link: "https://www.rbasglobal.com/about", imageId: "irfan-rbas-partnership-19", imageName: "Partnership and Trust in Export", imagePrompt: "Professional business handshake between two professionals in modern office with equipment documentation visible. RBAS brand colors. Warm natural lighting. 8K resolution.", negativePrompt: "no visible faces, professional setting maintained", camera: "35mm f/2.8 ISO 100"},
+                {id: 20, date: "2026-01-08", day: "Wednesday", time: "09:30", objective: "awareness", title: "Export Education: Understanding HS Codes and Tariff Classification", caption: "HS codes determine tariffs on equipment. Misclassify and pay unexpected duties. Here's what every export manager must know.", hashtags: "#HSCode #TariffClassification #ExportEducation #Compliance #Customs", cta: "Ask me about HS code verification", link: "", imageId: "irfan-rbas-hscode-20", imageName: "HS Code Documentation", imagePrompt: "Close-up of customs documentation and tariff schedules on desk. Professional office with natural lighting. RBAS orange accents. Sharp detail. 8K resolution.", negativePrompt: "no sensitive tariff numbers visible", camera: "35mm f/2.8 ISO 200"},
+                {id: 21, date: "2026-01-09", day: "Thursday", time: "09:30", objective: "consideration", title: "Mini Case Study: How We Equipped an East African Contractor's Growing Fleet", caption: "Kenya contractor scaled from 5 to 25 equipment units in 6 months. Here's how we managed logistics and financing.", hashtags: "#CaseStudy #EquipmentScaling #AfricaConstruction #B2BSuccess #Logistics", cta: "DM if you're scaling your fleet", link: "", imageId: "irfan-rbas-case-study-21", imageName: "Equipment Fleet Scaling Success", imagePrompt: "Wide shot of equipment yard with multiple machines in organized rows. African landscape with port infrastructure visible. Professional documentation style. 8K resolution.", negativePrompt: "no customer identifying info, professional site organization", camera: "70mm f/2.8 ISO 100"},
+                {id: 22, date: "2026-01-13", day: "Monday", time: "10:00", objective: "relationship-building", title: "Behind-the-Scenes: Inside Our Equipment Inspection and Staging Facility", caption: "Every piece gets 23-point inspection before shipment. Here's our quality assurance process.", hashtags: "#QualityAssurance #BehindTheScenes #Inspection #ExportQuality #RBAS", cta: "Learn about our quality standards", link: "", imageId: "irfan-rbas-inspection-22", imageName: "Equipment Inspection Facility", imagePrompt: "Interior of professional inspection facility with machines and technicians in PPE checking equipment. Well-lit facility, organized layout. Professional photography. 8K resolution.", negativePrompt: "no employee faces visible, organized facility appearance", camera: "35mm f/2.8 ISO 200"},
+                {id: 23, date: "2026-01-15", day: "Wednesday", time: "09:30", objective: "awareness", title: "Thought Leadership: Supply Chain Resilience in Post-Pandemic Equipment Export", caption: "Supply chains fragile? Smart exporters building resilience. Real strategies from 10 years of operations.", hashtags: "#SupplyChain #Resilience #ExportStrategy #RiskManagement #Trade", cta: "Share your supply chain challenges", link: "", imageId: "irfan-rbas-resilience-23", imageName: "Supply Chain Resilience", imagePrompt: "Professional infographic showing supply chain network with global nodes. Modern office with dashboard on large monitor. 8K resolution.", negativePrompt: "no confidential routes, illustrative mapping only", camera: "35mm f/2.8 ISO 100"},
+                {id: 24, date: "2026-01-16", day: "Thursday", time: "09:30", objective: "consideration", title: "Product Showcase: Road Rollers and Compactors for Highway Construction", caption: "Which compactor specs ensure optimal tropical soil compaction? Equipment guide inside.", hashtags: "#RoadRollers #Compactors #Construction #Equipment #Guide", cta: "DM your compaction requirements", link: "https://www.rbasglobal.com/products/compactors", imageId: "irfan-rbas-compactor-24", imageName: "Road Roller on Highway", imagePrompt: "Hyper-realistic compactor actively working on fresh asphalt. Vibration creating dust, dark asphalt visible, construction crew in background. Bright sunlight. 8K resolution.", negativePrompt: "no brand logos, professional documentation", camera: "70mm f/2.8 ISO 100"},
+                {id: 25, date: "2026-01-20", day: "Monday", time: "10:00", objective: "awareness", title: "Global Market Insight: Infrastructure Investment Trends Driving Equipment Demand", caption: "Which regions investing infrastructure 2026? Equipment demand spike analysis from global trade data.", hashtags: "#Infrastructure #MarketTrends #EquipmentDemand #Global #Investment", cta: "Which regions interest you most?", link: "", imageId: "irfan-rbas-market-trend-25", imageName: "Global Infrastructure Trends", imagePrompt: "Professional dashboard showing global infrastructure projects map. Multiple continents highlighted with growth indicators. Modern office setting. 8K resolution.", negativePrompt: "no confidential project details", camera: "35mm f/2.8 ISO 100"},
+                {id: 26, date: "2026-01-22", day: "Wednesday", time: "09:30", objective: "relationship-building", title: "Customer Appreciation: Success Stories from Our Growing Global Network", caption: "Our customers building nations. Stories of contractors transforming operations with right equipment.", hashtags: "#CustomerSuccess #GlobalNetwork #Testimonials #Partnership #Growth", cta: "Share your success story", link: "", imageId: "irfan-rbas-testimonial-26", imageName: "Customer Success Stories", imagePrompt: "Montage of successful construction projects across different geographic settings. Completed infrastructure visible. Professional documentary style. 8K resolution.", negativePrompt: "no visible people faces", camera: "70mm f/2.8 ISO 100"},
+                {id: 27, date: "2026-01-23", day: "Thursday", time: "09:30", objective: "consideration", title: "Equipment Comparison: Choosing Right Excavator Class for Your Budget", caption: "PC120 vs PC200 vs PC300—which fits budget? Cost vs productivity breakdown.", hashtags: "#Excavators #Comparison #Budget #Equipment #ROI", cta: "DM with project details", link: "", imageId: "irfan-rbas-excavator-comp-27", imageName: "Excavator Comparison", imagePrompt: "Side-by-side three excavators of different sizes on construction site. Clear size comparison visible. Professional documentation. 8K resolution.", negativePrompt: "no brand logos visible", camera: "70mm f/2.8 ISO 100"},
+                {id: 28, date: "2026-01-27", day: "Monday", time: "10:00", objective: "awareness", title: "Logistics Know-How: Port Selection Strategy for Equipment Shipments", caption: "Not all ports equal. Port infrastructure, capacity, connections matter. Smart selection strategy.", hashtags: "#Logistics #PortSelection #Shipping #Strategy #Supply", cta: "Share your shipping routes", link: "", imageId: "irfan-rbas-port-strategy-28", imageName: "Port Selection and Logistics", imagePrompt: "Aerial photography of major Indian shipping port with container operations. Gantry cranes, containers, vessels visible. Port infrastructure clear. 8K resolution.", negativePrompt: "no identifying vessel details", camera: "70mm f/2.8 ISO 100"},
+                {id: 29, date: "2026-01-29", day: "Wednesday", time: "09:30", objective: "relationship-building", title: "Compliance Corner: Full Documentation Guide for International Equipment Imports", caption: "Import regs vary by country. Complete checklist ensuring smooth customs clearance.", hashtags: "#ImportCompliance #Documentation #Regulations #Guide #Customs", cta: "Save and reference for next import", link: "", imageId: "irfan-rbas-compliance-29", imageName: "Import Compliance Documentation", imagePrompt: "Flat-lay of complete import documentation suite professionally arranged. Bills of lading, certificates, stamps visible. Professional office desk. 8K resolution.", negativePrompt: "no customer info visible", camera: "35mm f/2.8 ISO 200"},
+                {id: 30, date: "2026-01-30", day: "Thursday", time: "09:30", objective: "consideration", title: "Product Deep Dive: Dozer Specifications and Performance on Different Terrains", caption: "Dozers perform differently on rock, clay, laterite. Specs guide from 200+ exports.", hashtags: "#Dozers #Specifications #Performance #Equipment #Guide", cta: "Share dozer performance data", link: "https://www.rbasglobal.com/products/dozers", imageId: "irfan-rbas-dozer-terrain-30", imageName: "Dozer Performance Terrain", imagePrompt: "Hyper-realistic dozer actively pushing rocks on rocky terrain. Dust clouds visible. African terrain with sparse vegetation. Professional documentation. 8K resolution.", negativePrompt: "no brand logos, authentic conditions", camera: "70mm f/2.8 ISO 100"},
+                {id: 31, date: "2026-02-02", day: "Monday", time: "10:00", objective: "awareness", title: "Buyer FAQ: Quality Standards That International Equipment Buyers Expect", caption: "What defines quality for buyers developing economies? Premium vs pragmatic.", hashtags: "#QualityStandards #Buyers #Export #Standards #Quality", cta: "What standards matter for your market?", link: "", imageId: "irfan-rbas-quality-std-31", imageName: "Equipment Quality Standards", imagePrompt: "Professional testing laboratory with quality inspection equipment displayed. Pressure gauges, testing instruments visible. Clean professional environment. 8K resolution.", negativePrompt: "no brand logos on equipment", camera: "35mm f/2.8 ISO 200"},
+                {id: 32, date: "2026-02-03", day: "Tuesday", time: "09:30", objective: "consideration", title: "Product Spotlight: Material Handlers for Mining and Bulk Material Operations", caption: "Material handlers specialized workhorses. Configurations for ore, aggregates, bulk commodities.", hashtags: "#MaterialHandlers #Mining #Equipment #Bulk #Operations", cta: "DM material handling specs", link: "https://www.rbasglobal.com/products/material-handlers", imageId: "irfan-rbas-material-handler-32", imageName: "Material Handler Mining", imagePrompt: "Hyper-realistic material handler operating in open-pit mining. Equipment handling ore materials. Mining pit visible. Industrial landscape. 8K resolution.", negativePrompt: "no brand logos", camera: "70mm f/2.8 ISO 100"},
+                {id: 33, date: "2026-02-05", day: "Thursday", time: "09:30", objective: "relationship-building", title: "Industry Collaboration: How We Work With Logistics Partners for Equipment Safety", caption: "Equipment safety transit is partnership. How RBAS coordinates with shipping companies.", hashtags: "#Logistics #Partnership #Safety #Collaboration #Supply", cta: "Connect if you're logistics partner", link: "", imageId: "irfan-rbas-logistic-partner-33", imageName: "Logistics Partnership", imagePrompt: "Professional office meeting with shipping company representatives. Modern conference room with maps and documentation. Collaborative atmosphere. 8K resolution.", negativePrompt: "no visible employee faces", camera: "35mm f/2.8 ISO 200"},
+                {id: 34, date: "2026-02-09", day: "Monday", time: "10:00", objective: "awareness", title: "Export Education: Currency Exchange Risks and Hedging Strategies for Exporters", caption: "Rupee fluctuations affect margins. Smart hedging without complex derivatives.", hashtags: "#CurrencyRisk #ExportFinance #Hedging #Strategy #Finance", cta: "What's your approach to currency risk?", link: "", imageId: "irfan-rbas-forex-risk-34", imageName: "Currency Exchange Risk", imagePrompt: "Professional financial dashboard showing forex rates and hedging strategy. Laptop with trading interface. Modern office. 8K resolution.", negativePrompt: "no real trading positions", camera: "35mm f/2.8 ISO 100"},
+                {id: 35, date: "2026-02-10", day: "Tuesday", time: "09:30", objective: "consideration", title: "Client Success: How RBAS Scaled Equipment Fleet Operations Across Oman", caption: "Single-site to multi-location operations. How contractor built profitable business.", hashtags: "#ClientSuccess #Oman #Scaling #Equipment #Growth", cta: "DM for expansion strategies", link: "", imageId: "irfan-rbas-oman-success-35", imageName: "Oman Fleet Success", imagePrompt: "Multiple construction sites across Oman landscape showing equipment in operation. Different project types visible. Desert terrain. Professional documentation. 8K resolution.", negativePrompt: "no customer identifying info", camera: "70mm f/2.8 ISO 100"},
+                {id: 36, date: "2026-02-12", day: "Thursday", time: "09:30", objective: "relationship-building", title: "Team Insight: How Our Export Specialists Solve Complex Buyer Requirements", caption: "Every buyer different. How specialists match equipment, financing, logistics.", hashtags: "#TeamInsight #Expertise #Solutions #Specialists #Service", cta: "Connect for your requirements", link: "", imageId: "irfan-rbas-team-insight-36", imageName: "Expert Team Solutions", imagePrompt: "Professional office team reviewing technical documentation and equipment specs. Collaborative workspace. Modern business environment. 8K resolution.", negativePrompt: "no visible employee faces", camera: "35mm f/2.8 ISO 200"},
+                {id: 37, date: "2026-02-16", day: "Monday", time: "10:00", objective: "awareness", title: "Global Market Insight: Infrastructure Investment Trends for Equipment Demand 2026", caption: "Regions investing infrastructure 2026? Demand surge analysis from global data.", hashtags: "#Infrastructure #MarketTrends #Demand #Global #Investment", cta: "Start discussion on regions", link: "", imageId: "irfan-rbas-market-trend-37", imageName: "Market Infrastructure Trends", imagePrompt: "Professional data visualization showing global infrastructure projects and equipment demand trends. Dashboard-style presentation. Modern office. 8K resolution.", negativePrompt: "no confidential data", camera: "35mm f/2.8 ISO 100"},
+                {id: 38, date: "2026-02-17", day: "Tuesday", time: "09:30", objective: "consideration", title: "Equipment Spec Breakdown: Understanding Hydraulic Systems in Modern Machinery", caption: "Hydraulics heart of equipment. Pressure ratings, flow rates—what they mean.", hashtags: "#HydraulicSystems #Equipment #Technology #Specs #Guide", cta: "Ask about hydraulic optimization", link: "", imageId: "irfan-rbas-hydraulic-38", imageName: "Hydraulic Systems Technical", imagePrompt: "Close-up technical photography of construction equipment hydraulic system. Cylinders, pumps, hoses visible. Professional technical documentation. 8K resolution.", negativePrompt: "no brand logos", camera: "35mm f/2.8 ISO 200"},
+                {id: 39, date: "2026-02-19", day: "Thursday", time: "09:30", objective: "relationship-building", title: "Quality Assurance Deep-Dive: Field Testing and Certification at RBAS", caption: "Every machine tested before export. Rigorous field testing protocol.", hashtags: "#QualityAssurance #FieldTesting #Certification #Quality #Assurance", cta: "Ask about our certification", link: "", imageId: "irfan-rbas-qa-testing-39", imageName: "Field Testing Certification", imagePrompt: "Professional photography of equipment field testing facility. Machines undergoing load testing. Test equipment visible. Technicians in PPE. 8K resolution.", negativePrompt: "no visible faces", camera: "35mm f/2.8 ISO 200"},
+                {id: 40, date: "2026-02-23", day: "Sunday", time: "09:30", objective: "awareness", title: "Compliance Essentials: ROHS and Environmental Standards for Equipment Exports", caption: "Environmental compliance affects exports developed markets. Regulations guide.", hashtags: "#EnvironmentalCompliance #ROHS #Standards #Exports #Sustainability", cta: "Ask about compliance verification", link: "", imageId: "irfan-rbas-compliance-env-40", imageName: "Environmental Compliance", imagePrompt: "Professional documentation of compliance certificates and environmental test reports. Modern office setting. RBAS branding. 8K resolution.", negativePrompt: "no sensitive details", camera: "35mm f/2.8 ISO 100"},
+                {id: 41, date: "2026-02-24", day: "Monday", time: "10:00", objective: "consideration", title: "Product Spotlight: Skid Steer Loaders for Versatile Construction Solutions", caption: "Skid steers compact versatile. Attachment options for tight spaces.", hashtags: "#SkidSteerLoaders #Equipment #Construction #Versatile #Tools", cta: "DM your application needs", link: "https://www.rbasglobal.com/products/skid-steer-loaders", imageId: "irfan-rbas-skidsteer-41", imageName: "Skid Steer Loader", imagePrompt: "Hyper-realistic skid steer loader operating in tight construction space with various attachments. Small workspace. Professional documentation. 8K resolution.", negativePrompt: "no brand logos", camera: "70mm f/2.8 ISO 100"},
+                {id: 42, date: "2026-02-26", day: "Wednesday", time: "09:30", objective: "awareness", title: "Thought Leadership: Equipment Localization in Emerging Markets", caption: "Emerging markets need adapted equipment. Localization smart engineering.", hashtags: "#Localization #EmergingMarkets #Equipment #Adaptation #Engineering", cta: "What factors matter in your market?", link: "", imageId: "irfan-rbas-localization-42", imageName: "Equipment Localization", imagePrompt: "Technical documentation showing equipment adaptation examples. Original vs localized versions. Professional engineering documentation. 8K resolution.", negativePrompt: "no sensitive specs", camera: "35mm f/2.8 ISO 200"},
+                {id: 43, date: "2026-02-27", day: "Thursday", time: "09:30", objective: "relationship-building", title: "Network Growth: Expanding RBAS Global Footprint in Key Export Markets", caption: "Growing in Southeast Asia, West Africa. Positioning 2026 and partner opportunities.", hashtags: "#NetworkGrowth #Expansion #Markets #Partnership #Growth", cta: "Interest in distribution partnerships?", link: "", imageId: "irfan-rbas-network-growth-43", imageName: "RBAS Network Expansion", imagePrompt: "Professional map visualization showing RBAS expansion across regions. Distribution network nodes highlighted. Growth indicators visible. 8K resolution.", negativePrompt: "no sensitive partner info", camera: "35mm f/2.8 ISO 100"},
+                {id: 44, date: "2026-03-02", day: "Sunday", time: "09:30", objective: "awareness", title: "Export Trends: Demand Surge in African Construction Equipment Market", caption: "Africa market booming. Road, hydropower, mining projects drive 25%+ growth.", hashtags: "#AfricaConstruction #MarketGrowth #Demand #Trends #Opportunity", cta: "Targeting African markets?", link: "", imageId: "irfan-rbas-africa-trend-44", imageName: "African Market Growth", imagePrompt: "Professional infographic showing African infrastructure projects map. Construction equipment deployment across countries. Growth charts. 8K resolution.", negativePrompt: "no specific project details", camera: "35mm f/2.8 ISO 100"},
+                {id: 45, date: "2026-03-03", day: "Monday", time: "10:00", objective: "consideration", title: "Equipment ROI Analysis: New vs Refurbished for Your Budget", caption: "Budget constraints? Financial analysis new vs refurbished operations.", hashtags: "#ROIAnalysis #Equipment #Budget #NewVsUsed #Investment", cta: "DM your budget details", link: "", imageId: "irfan-rbas-roi-analysis-45", imageName: "Equipment ROI Analysis", imagePrompt: "Professional financial infographic showing ROI comparison. Cost analysis, maintenance curves, ownership cost visualization. Modern dashboard. 8K resolution.", negativePrompt: "no sensitive pricing", camera: "35mm f/2.8 ISO 100"},
+                {id: 46, date: "2026-03-05", day: "Wednesday", time: "09:30", objective: "relationship-building", title: "Client Spotlight: Long-Term Partnership with Middle Eastern Contractor Network", caption: "Middle East partners 6+ years. Transaction to strategic partnership evolution.", hashtags: "#ClientSpotlight #Partnership #MiddleEast #LongTerm #Success", cta: "Connect for partnerships", link: "", imageId: "irfan-rbas-me-spotlight-46", imageName: "Middle East Partnership", imagePrompt: "Montage of successful Middle Eastern construction projects. Multiple sites showing equipment in operation. Professional documentation. 8K resolution.", negativePrompt: "no customer details", camera: "70mm f/2.8 ISO 100"},
+                {id: 47, date: "2026-03-09", day: "Sunday", time: "09:30", objective: "awareness", title: "Thought Leadership: Sustainability and Green Technology in Equipment Exports", caption: "Sustainability reshaping exports. Green technology, emissions emerging.", hashtags: "#Sustainability #GreenTech #Environment #Export #Future", cta: "Share your sustainability focus", link: "", imageId: "irfan-rbas-sustainability-47", imageName: "Sustainable Equipment", imagePrompt: "Professional photography showing modern sustainable construction equipment with electric/hybrid systems. Futuristic construction site. 8K resolution.", negativePrompt: "no unrealistic elements", camera: "35mm f/2.8 ISO 100"},
+                {id: 48, date: "2026-03-10", day: "Monday", time: "10:00", objective: "consideration", title: "Product Guide: Concrete Pumps for Major Construction and Infrastructure", caption: "Concrete pumps specialized. Boom length, pressure rating, truck size.", hashtags: "#ConcretePumps #Equipment #Construction #Guide #Infrastructure", cta: "DM concrete pumping needs", link: "https://www.rbasglobal.com/products/concrete-pumps", imageId: "irfan-rbas-concrete-pump-48", imageName: "Concrete Pump Construction", imagePrompt: "Hyper-realistic concrete pump at high-rise construction delivering concrete. Boom extended upward. Workers managing flow. Construction site. 8K resolution.", negativePrompt: "no brand logos, no faces", camera: "70mm f/2.8 ISO 100"},
+                {id: 49, date: "2026-03-12", day: "Wednesday", time: "09:30", objective: "relationship-building", title: "Partnership Model: Long-Term Growth With International Equipment Distributors", caption: "Work 40+ distributors globally. Partnership philosophy mutual growth.", hashtags: "#PartnershipModel #Distributors #Global #Growth #Alliance", cta: "Distributor opportunities?", link: "", imageId: "irfan-rbas-partner-model-49", imageName: "Distributor Partnership", imagePrompt: "Professional business meeting with global distributor partners. Modern conference room with partnership visualization. Collaborative setting. 8K resolution.", negativePrompt: "no confidential details", camera: "35mm f/2.8 ISO 200"},
+                {id: 50, date: "2026-03-16", day: "Sunday", time: "09:30", objective: "awareness", title: "Buyer Education: Reading Equipment Specifications Like a Pro", caption: "Spec sheets dense. Cut jargon, identify specs impacting performance.", hashtags: "#EquipmentSpecs #BuyerEducation #Guide #Procurement #Learning", cta: "Ask me to decode specs", link: "", imageId: "irfan-rbas-spec-reading-50", imageName: "Equipment Specs Guide", imagePrompt: "Professional documentation photography showing equipment specification sheets with annotations. Engineering professional reviewing specs. 8K resolution.", negativePrompt: "no brand logos", camera: "35mm f/2.8 ISO 200"},
+                {id: 51, date: "2026-03-17", day: "Monday", time: "10:00", objective: "consideration", title: "Product Showcase: Telescopic Handlers for Versatile Construction Applications", caption: "Telehandlers Swiss Army knives sites. Reach, capacity, boom control.", hashtags: "#TelescopicHandlers #Equipment #Versatile #Construction #Tool", cta: "DM handling requirements", link: "https://www.rbasglobal.com/products/telescopic-handlers", imageId: "irfan-rbas-telehandler-51", imageName: "Telescopic Handler", imagePrompt: "Hyper-realistic telehandler with boom fully extended on active construction site. Material handling capability demonstrated. Multi-story building. 8K resolution.", negativePrompt: "no brand logos", camera: "70mm f/2.8 ISO 100"},
+                {id: 52, date: "2026-03-19", day: "Wednesday", time: "09:30", objective: "awareness", title: "Logistics Know-How: Containerization and Load Planning for Equipment Safety", caption: "How pack 30-ton excavator safely? Containerization strategy guide.", hashtags: "#Containerization #LoadPlanning #Safety #Logistics #Technique", cta: "Share containerization tips", link: "", imageId: "irfan-rbas-container-strategy-52", imageName: "Equipment Containerization", imagePrompt: "Professional photography of equipment loading into shipping container. Proper weight distribution, securing straps visible. Port setting. 8K resolution.", negativePrompt: "no worker faces", camera: "35mm f/2.8 ISO 200"},
+                {id: 53, date: "2026-03-20", day: "Thursday", time: "09:30", objective: "relationship-building", title: "Customer Stories: Equipment Performance and Project Success From Real Installations", caption: "Real installations transform projects. Customer stories across regions.", hashtags: "#CustomerStories #Performance #Success #Cases #Results", cta: "Share your success story", link: "", imageId: "irfan-rbas-customer-stories-53", imageName: "Customer Success Stories", imagePrompt: "Montage of equipment installations and completed projects demonstrating performance. Diverse geographic contexts and project types. 8K resolution.", negativePrompt: "no visible people", camera: "70mm f/2.8 ISO 100"},
+                {id: 54, date: "2026-03-23", day: "Sunday", time: "09:30", objective: "consideration", title: "Mini Case Study: Custom Equipment Sourcing for African Distribution Network", caption: "Distributor needed equip 8 sites West Africa varied equipment.", hashtags: "#CaseStudy #Africa #Sourcing #Distribution #Scaling", cta: "Planning network expansion?", link: "", imageId: "irfan-rbas-africa-case-54", imageName: "African Network Case Study", imagePrompt: "Montage showing multiple African construction sites with varied equipment. Different geographic locations with appropriate configurations. 8K resolution.", negativePrompt: "no customer info", camera: "70mm f/2.8 ISO 100"},
+                {id: 55, date: "2026-03-24", day: "Monday", time: "10:00", objective: "awareness", title: "Trade Insight: India-UAE Equipment Trade Partnership and Growth Opportunities", caption: "India-UAE trade accelerating. Trade agreements, workforce, logistics drive growth.", hashtags: "#IndiaUAETrade #Partnership #Growth #Trade #Opportunity", cta: "Targeting UAE markets?", link: "", imageId: "irfan-rbas-india-uae-55", imageName: "India-UAE Trade Partnership", imagePrompt: "Professional infographic showing India-UAE trade routes and port connections. Shipping corridors highlighted. Trade partnership visualization. 8K resolution.", negativePrompt: "no sensitive data", camera: "35mm f/2.8 ISO 100"},
+                {id: 56, date: "2026-03-26", day: "Wednesday", time: "09:30", objective: "relationship-building", title: "Behind-the-Scenes: Supply Chain Coordination Across Multiple Regions and Timezones", caption: "Coordinating shipments 15+ countries. Multi-region supply chain management.", hashtags: "#SupplyChain #Coordination #Global #Logistics #Management", cta: "Managing complex chains?", link: "", imageId: "irfan-rbas-supply-coord-56", imageName: "Supply Chain Coordination", imagePrompt: "Professional office supply chain command center with multiple monitors displaying shipment tracking and regional status. Modern logistics control. 8K resolution.", negativePrompt: "no employee faces", camera: "35mm f/2.8 ISO 200"},
+                {id: 57, date: "2026-03-27", day: "Thursday", time: "09:30", objective: "consideration", title: "Product Series: Compactors and Rollers for Road and Earthworks Equipment", caption: "Compaction equipment types. Light, medium, heavy—right for conditions?", hashtags: "#Compactors #Rollers #Earthworks #Equipment #Range", cta: "DM soil type recommendations", link: "https://www.rbasglobal.com/products/compactors-rollers", imageId: "irfan-rbas-compactor-series-57", imageName: "Compactor Equipment Range", imagePrompt: "Wide-angle photography showing multiple compactor types arranged in sequence. Different sizes for comparison. Professional site setup. 8K resolution.", negativePrompt: "no brand logos", camera: "70mm f/2.8 ISO 100"},
+                {id: 58, date: "2026-03-28", day: "Friday", time: "09:30", objective: "awareness", title: "Global Market Report: Southeast Asian Equipment Demand 2026", caption: "Southeast Asia construction boom. Equipment demand patterns analysis.", hashtags: "#SoutheastAsia #MarketReport #Demand #Construction #Growth", cta: "Share Southeast Asia insights", link: "", imageId: "irfan-rbas-sea-report-58", imageName: "Southeast Asia Market", imagePrompt: "Professional market analysis infographic showing Southeast Asian construction projects and equipment demand trends. Regional data visualization. 8K resolution.", negativePrompt: "no confidential data", camera: "35mm f/2.8 ISO 100"},
+                {id: 59, date: "2026-03-29", day: "Saturday", time: "09:30", objective: "relationship-building", title: "Leadership Perspective: Future of Equipment Export Industry and RBAS Vision", caption: "10 years exports, 15+ markets. Industry future thoughts technology, sustainability.", hashtags: "#Leadership #Vision #Future #Export #Industry", cta: "Share your vision", link: "", imageId: "irfan-rbas-vision-59", imageName: "Industry Leadership Vision", imagePrompt: "Professional thought leadership photography showing modern equipment yard with next-gen sustainable machinery. Futuristic vision. 8K resolution.", negativePrompt: "no confidential plans", camera: "35mm f/2.8 ISO 100"},
+                {id: 60, date: "2026-03-30", day: "Sunday", time: "09:30", objective: "consideration", title: "Equipment Spec Deep-Dive: Hydraulic Systems Modern Construction Machinery", caption: "Hydraulics heart equipment. Pressure ratings, flow rates performance.", hashtags: "#HydraulicSystems #Specs #Equipment #Technology #Engineering", cta: "Optimize hydraulic systems?", link: "", imageId: "irfan-rbas-hydraulic-60", imageName: "Hydraulic Systems", imagePrompt: "Close-up technical photo showing hydraulic system components. Cylinders, pumps, hoses visible. Professional technical documentation. 8K resolution.", negativePrompt: "no logos", camera: "35mm f/2.8 ISO 200"},
+                {id: 61, date: "2026-03-31", day: "Monday", time: "10:00", objective: "awareness", title: "Export Trends: What Equipment Export Industry Should Watch in 2026", caption: "2026 equipment export trends, market shifts, opportunities ahead.", hashtags: "#ExportTrends #Forecast #Market #Opportunity #Industry", cta: "What trends see you seeing?", link: "", imageId: "irfan-rbas-trends-61", imageName: "Export Industry Trends", imagePrompt: "Professional trend analysis dashboard showing equipment export market projections and emerging opportunities. Data visualization. 8K resolution.", negativePrompt: "no proprietary data", camera: "35mm f/2.8 ISO 100"},
+                {id: 62, date: "2026-03-31", day: "Monday", time: "10:00", objective: "relationship-building", title: "Year-End Reflection: Building Lasting Partnerships in Equipment Export", caption: "Partnerships outlast market cycles. Year reflection what matters B2B.", hashtags: "#Reflection #Partnership #Gratitude #Success #Export", cta: "Build 2026 partnerships", link: "https://www.rbasglobal.com/about", imageId: "irfan-rbas-reflection-62", imageName: "Partnership Reflection", imagePrompt: "Professional reflection photography showing collaborative business environment. Global documentation visible. Warm office atmosphere. 8K resolution.", negativePrompt: "no employee faces", camera: "35mm f/2.8 ISO 100"},
+                {id: 63, date: "2026-02-20", day: "Thursday", time: "09:30", objective: "consideration", title: "Wheel Loader Specifications Deep Technical Breakdown", caption: "Wheel loader specs explained. What each specification means for operations.", hashtags: "#WheelLoaders #Specs #Technical #Guide #Equipment", cta: "DM for technical questions", link: "", imageId: "irfan-rbas-wheel-specs-63", imageName: "Wheel Loader Specifications", imagePrompt: "Professional technical documentation showing wheel loader specifications with detailed breakdown. Engineering diagram style. 8K resolution.", negativePrompt: "no brand logos", camera: "35mm f/2.8 ISO 200"},
+                {id: 64, date: "2026-02-21", day: "Friday", time: "09:30", objective: "awareness", title: "Container Ship Loading Operations: Best Practices for Equipment Export", caption: "Equipment loading best practices ensuring safe transport across oceans.", hashtags: "#ContainerShip #Loading #Operations #Safety #Export", cta: "Share loading best practices", link: "", imageId: "irfan-rbas-container-load-64", imageName: "Container Loading Operations", imagePrompt: "Professional photography of equipment loading onto container ship. Proper securing and arrangement visible. Port operations. 8K resolution.", negativePrompt: "no brand logos", camera: "70mm f/2.8 ISO 100"}
+            ];
+
+            const getObjectiveBadge = (objective) => {
+                const badges = {
+                    'awareness': 'badge-awareness',
+                    'consideration': 'badge-consideration',
+                    'relationship-building': 'badge-relationship'
+                };
+                return badges[objective] || '';
+            };
+
+            const getObjectiveEmoji = (objective) => {
+                const emojis = {
+                    'awareness': '📊',
+                    'consideration': '🎯',
+                    'relationship-building': '🤝'
+                };
+                return emojis[objective] || '';
+            };
+
+            const filteredPosts = posts.filter(post => {
+                const matchSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                   post.caption.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchFilter = !filterObjective || post.objective === filterObjective;
+                return matchSearch && matchFilter;
+            });
+
+            const groupByWeek = (postsArray) => {
+                const weeks = [[], [], [], []];
+                postsArray.forEach((post, idx) => {
+                    const week = Math.floor(idx / 4);
+                    if (week < 4) weeks[week].push(post);
+                });
+                return weeks;
+            };
+
+            const weeks = groupByWeek(posts);
+
+            const copyPromptToClipboard = (text) => {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('✅ Prompt copied to clipboard!');
+                }).catch(() => {
+                    alert('❌ Failed to copy prompt');
+                });
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
+                    {/* Header */}
+                    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-rbas-orange to-rbas-red rounded-lg flex items-center justify-center text-white font-bold text-xl">🌍</div>
+                                    <div>
+                                        <h1 className="text-3xl font-bold text-gray-900">🌍 RBAS Global</h1>
+                                        <p className="text-sm text-gray-500">👤 Irfan Ali - LinkedIn Content Calendar</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-lg font-semibold text-gray-900">📅 December 2025</p>
+                                    <p className="text-xs text-gray-500">📊 16 Posts • 4 Weeks</p>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Content */}
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+                        {/* Search */}
+                        <div className="mb-6">
+                            <input 
+                                type="text" 
+                                placeholder="🔎 Search posts by title or topic..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rbas-orange focus:border-transparent"
+                            />
+                        </div>
+
+                        {/* Filters */}
+                        <div className="flex flex-wrap gap-2 mb-8">
+                            <button 
+                                onClick={() => setFilterObjective('')}
+                                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer transition hover-scale"
+                            >
+                                📋 All Posts ({posts.length})
+                            </button>
+                            <button 
+                                onClick={() => setFilterObjective('awareness')}
+                                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 cursor-pointer transition hover-scale"
+                            >
+                                📊 Awareness (5)
+                            </button>
+                            <button 
+                                onClick={() => setFilterObjective('consideration')}
+                                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-purple-50 cursor-pointer transition hover-scale"
+                            >
+                                🎯 Consideration (4)
+                            </button>
+                            <button 
+                                onClick={() => setFilterObjective('relationship-building')}
+                                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-green-50 cursor-pointer transition hover-scale"
+                            >
+                                🤝 Relationship (4)
+                            </button>
+                        </div>
+
+                        {/* Tabs */}
+                        <div className="flex gap-0 mb-6 border-b border-gray-200 flex-wrap">
+                            <button 
+                                onClick={() => setActiveView('list')}
+                                className={`px-4 py-3 font-medium cursor-pointer transition ${activeView === 'list' ? 'border-b-2 border-rbas-orange text-rbas-orange' : 'text-gray-600 hover:text-gray-900'}`}
+                            >
+                                📝 List View
+                            </button>
+                            <button 
+                                onClick={() => setActiveView('calendar')}
+                                className={`px-4 py-3 font-medium cursor-pointer transition ${activeView === 'calendar' ? 'border-b-2 border-rbas-orange text-rbas-orange' : 'text-gray-600 hover:text-gray-900'}`}
+                            >
+                                📅 Calendar
+                            </button>
+                            <button 
+                                onClick={() => setActiveView('images')}
+                                className={`px-4 py-3 font-medium cursor-pointer transition ${activeView === 'images' ? 'border-b-2 border-rbas-orange text-rbas-orange' : 'text-gray-600 hover:text-gray-900'}`}
+                            >
+                                🎨 Image Prompts
+                            </button>
+                            <button 
+                                onClick={() => setActiveView('stats')}
+                                className={`px-4 py-3 font-medium cursor-pointer transition ${activeView === 'stats' ? 'border-b-2 border-rbas-orange text-rbas-orange' : 'text-gray-600 hover:text-gray-900'}`}
+                            >
+                                📈 Analytics
+                            </button>
+                        </div>
+
+                        {/* List View */}
+                        {activeView === 'list' && (
+                            <div className="space-y-4 fade-in">
+                                {filteredPosts.length === 0 ? (
+                                    <div className="text-center py-8">
+                                        <p className="text-gray-500">🔍 No posts found matching your criteria</p>
+                                    </div>
+                                ) : (
+                                    filteredPosts.map(post => (
+                                        <div 
+                                            key={post.id}
+                                            onClick={() => setSelectedPost(post)}
+                                            className="bg-white border border-gray-200 rounded-lg p-6 hover-scale cursor-pointer"
+                                        >
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div>
+                                                    <p className="text-xs text-gray-500 mb-1">📆 {post.date} • {post.day}</p>
+                                                    <h3 className="text-lg font-semibold text-gray-900">{post.title}</h3>
+                                                </div>
+                                                <span className={`badge ${getObjectiveBadge(post.objective)}`}>{getObjectiveEmoji(post.objective)} {post.objective.replace('-', ' ')}</span>
+                                            </div>
+                                            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{post.caption}</p>
+                                            <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                                                <div className="text-xs text-gray-600">
+                                                    <span className="font-semibold text-rbas-orange">⏰ {post.time} IST</span>
+                                                </div>
+                                                <button onClick={(e) => { e.stopPropagation(); setSelectedPost(post); }} className="text-rbas-orange hover:text-rbas-red font-medium text-sm cursor-pointer">👁️ View Details →</button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+
+                        {/* Calendar View */}
+                        {activeView === 'calendar' && (
+                            <div className="space-y-6 fade-in">
+                                {weeks.map((week, wIdx) => (
+                                    <div key={wIdx} className="bg-white border border-gray-200 rounded-lg p-6">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-4">📆 Week {wIdx + 1}</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                            {week.map(post => (
+                                                <div 
+                                                    key={post.id}
+                                                    onClick={() => setSelectedPost(post)}
+                                                    className="border border-gray-300 rounded-lg p-4 hover-scale cursor-pointer"
+                                                >
+                                                    <p className="text-xs font-semibold text-rbas-orange mb-2">📅 {post.date}</p>
+                                                    <p className="text-sm font-medium text-gray-900 mb-3 line-clamp-2">{post.title}</p>
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs font-semibold text-gray-600">⏰ {post.time} IST</span>
+                                                        <span className={`badge ${getObjectiveBadge(post.objective)}`}>{getObjectiveEmoji(post.objective)}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Image Prompts View */}
+                        {activeView === 'images' && (
+                            <div className="space-y-4 fade-in">
+                                {posts.map(post => (
+                                    <div 
+                                        key={post.id}
+                                        onClick={() => setSelectedPost(post)}
+                                        className="bg-white border border-gray-200 rounded-lg p-6 hover-scale cursor-pointer"
+                                    >
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div>
+                                                <p className="text-xs text-gray-500 mb-1">🎨 {post.date} • {post.imageName}</p>
+                                                <h3 className="text-lg font-semibold text-gray-900">{post.title}</h3>
+                                            </div>
+                                            <span className={`badge ${getObjectiveBadge(post.objective)}`}>{getObjectiveEmoji(post.objective)}</span>
+                                        </div>
+                                        <p className="text-gray-600 text-sm mb-3 line-clamp-3">{post.imagePrompt}</p>
+                                        <div className="flex justify-between items-center text-xs text-gray-600 flex-wrap gap-2">
+                                            <span className="bg-rbas-orange/10 text-rbas-orange px-2 py-1 rounded">📷 {post.camera}</span>
+                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">🆔 {post.imageId}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Analytics View */}
+                        {activeView === 'stats' && (
+                            <div className="space-y-6 fade-in">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                                        <p className="text-sm text-gray-600 mb-2">📄 Total Posts</p>
+                                        <p className="text-4xl font-bold text-gray-900">16</p>
+                                    </div>
+                                    <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                                        <p className="text-sm text-blue-700 mb-2">📊 Awareness Posts</p>
+                                        <p className="text-4xl font-bold text-blue-900">5</p>
+                                    </div>
+                                    <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                                        <p className="text-sm text-purple-700 mb-2">🎯 Consideration Posts</p>
+                                        <p className="text-4xl font-bold text-purple-900">4</p>
+                                    </div>
+                                    <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+                                        <p className="text-sm text-green-700 mb-2">🤝 Relationship Posts</p>
+                                        <p className="text-4xl font-bold text-green-900">4</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">📅 Posts by Day</h3>
+                                        <div className="space-y-3 text-sm">
+                                            <div className="flex justify-between"><span>🅼 Monday</span><span className="font-semibold text-rbas-orange">4 posts @ 10:00 AM</span></div>
+                                            <div className="flex justify-between"><span>🇹 Tuesday</span><span className="font-semibold text-rbas-orange">4 posts @ 9:30 AM</span></div>
+                                            <div className="flex justify-between"><span>🇹 Thursday</span><span className="font-semibold text-rbas-orange">4 posts @ 9:30 AM</span></div>
+                                            <div className="flex justify-between"><span>🅵 Friday</span><span className="font-semibold text-rbas-orange">4 posts @ 2:00 PM</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">⏰ Best Posting Times (IST)</h3>
+                                        <div className="space-y-3 text-sm">
+                                            <div className="flex justify-between"><span className="font-medium">🌅 Morning Peak</span><span className="text-rbas-orange font-semibold">9:30 - 10:00 AM</span></div>
+                                            <div className="flex justify-between"><span className="font-medium">🌤️ Afternoon Peak</span><span className="text-rbas-orange font-semibold">1:30 - 2:00 PM</span></div>
+                                            <div className="flex justify-between"><span className="font-medium">⏱️ Backup Times</span><span className="text-gray-600">+4-5 hours offset</span></div>
+                                            <div className="flex justify-between"><span className="font-medium">✨ Best Days</span><span className="text-blue-600 font-semibold">Tue, Wed, Thu</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Content Pillars</h3>
+                                        <div className="space-y-3 text-sm">
+                                            <div className="flex justify-between"><span>📚 Export Education</span><span className="font-semibold">5 posts</span></div>
+                                            <div className="flex justify-between"><span>🛠️ Product Spotlights</span><span className="font-semibold">4 posts</span></div>
+                                            <div className="flex justify-between"><span>🤝 Trust Building</span><span className="font-semibold">4 posts</span></div>
+                                            <div className="flex justify-between"><span>💡 Thought Leadership</span><span className="font-semibold">3 posts</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">🌍 Target Geography</h3>
+                                        <div className="space-y-3 text-sm">
+                                            <div className="flex justify-between"><span>🌍 Africa</span><span className="font-semibold">6 posts</span></div>
+                                            <div className="flex justify-between"><span>🌏 Asia</span><span className="font-semibold">5 posts</span></div>
+                                            <div className="flex justify-between"><span>🌐 Global</span><span className="font-semibold">5 posts</span></div>
+                                            <div className="flex justify-between"><span>🇮🇳 India Focus</span><span className="font-semibold">4 posts</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    {/* Modal */}
+                    {selectedPost && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 fade-in">
+                            <div className="bg-white rounded-lg max-w-3xl w-full max-h-[95vh] overflow-y-auto custom-scrollbar">
+                                <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                                    <h2 className="text-xl font-bold text-gray-900">📌 {selectedPost.title}</h2>
+                                    <button onClick={() => setSelectedPost(null)} className="text-gray-500 hover:text-gray-700 text-2xl font-light cursor-pointer">✕</button>
+                                </div>
+                                <div className="px-6 py-6 space-y-6">
+                                    <div className="grid grid-cols-2 gap-4 pb-4 border-b border-gray-200">
+                                        <div><p className="text-xs text-gray-500">📅 Date</p><p className="font-semibold text-gray-900">{selectedPost.date}</p></div>
+                                        <div><p className="text-xs text-gray-500">📍 Day</p><p className="font-semibold text-gray-900">{selectedPost.day}</p></div>
+                                        <div><p className="text-xs text-gray-500">⏰ Time</p><p className="font-semibold text-rbas-orange">{selectedPost.time} IST</p></div>
+                                        <div><p className="text-xs text-gray-500">🎯 Type</p><p className="font-semibold">{selectedPost.objective.replace('-', ' ')}</p></div>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-2">📝 Caption</p>
+                                        <p className="text-sm text-gray-900">{selectedPost.caption}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-2">🏷️ Hashtags</p>
+                                        <p className="text-sm text-rbas-orange">{selectedPost.hashtags}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-2">💬 Call-to-Action</p>
+                                        <p className="text-sm text-gray-900">{selectedPost.cta}</p>
+                                    </div>
+                                    {selectedPost.link && (
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-2">🔗 Link</p>
+                                            <a href={selectedPost.link} target="_blank" rel="noopener noreferrer" className="text-rbas-orange hover:underline text-sm">{selectedPost.link}</a>
+                                        </div>
+                                    )}
+                                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                                        <p className="text-xs text-blue-700 mb-3 font-semibold">🖼️ Image Details</p>
+                                        <p className="text-xs text-blue-900 mb-2"><strong>📌 Name:</strong> {selectedPost.imageName}</p>
+                                        <p className="text-xs text-blue-900 mb-2"><strong>🆔 ID:</strong> {selectedPost.imageId}</p>
+                                        <p className="text-xs text-blue-900 mb-3"><strong>📷 Camera:</strong> {selectedPost.camera}</p>
+                                        <div className="mb-3">
+                                            <p className="text-xs font-semibold text-blue-900 mb-2">✍️ Hyper-Realistic Prompt:</p>
+                                            <div className="code-display">{selectedPost.imagePrompt}</div>
+                                            <button 
+                                                onClick={() => copyPromptToClipboard(selectedPost.imagePrompt)}
+                                                className="copy-prompt-btn mt-2 w-full"
+                                            >
+                                                📋 Copy Prompt to Clipboard
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-semibold text-blue-900 mb-2">❌ Negative Prompt:</p>
+                                            <div className="code-display">{selectedPost.negativePrompt}</div>
+                                            <button 
+                                                onClick={() => copyPromptToClipboard(selectedPost.negativePrompt)}
+                                                className="copy-prompt-btn mt-2 w-full"
+                                            >
+                                                📋 Copy Negative Prompt
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
